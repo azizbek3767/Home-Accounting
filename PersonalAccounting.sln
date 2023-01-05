@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PersonalAccounting", "PersonalAccounting\PersonalAccounting.csproj", "{EA329BE6-0D22-4C91-B312-B61C8B122633}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EA329BE6-0D22-4C91-B312-B61C8B122633}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA329BE6-0D22-4C91-B312-B61C8B122633}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA329BE6-0D22-4C91-B312-B61C8B122633}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA329BE6-0D22-4C91-B312-B61C8B122633}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {891FA694-E7C2-4CC6-AF36-F6E98A2C60D5}
+	EndGlobalSection
+EndGlobal
