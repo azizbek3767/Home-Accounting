@@ -1,4 +1,4 @@
-﻿@model HomeCreateViewModel
+﻿@model HomeEditViewModel
 @{
     ViewBag.Title = "Добавить транзакцию";
 
@@ -11,12 +11,12 @@
 
 <h3 class="text-danger">@ErrorMessage</h3>
 
-<form asp-controller="home" asp-action="create" method="post" class="mt-3">
+<form asp-controller="home" asp-action="edit" method="post" class="mt-3">
     <div class="form-group row">
-        <label asp-for="DateTime" class="col-sm-2 col-form-label"></label>
+        <label asp-for="DateTimeOld" class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
-            <input type="datetime-local" asp-for="DateTime" placeholder="Введите дату и время" id="datePicker" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss").Replace(' ','T')" />
-            <span asp-validation-for="DateTime" class="text-danger"></span>
+            <input disabled type="datetime-local" asp-for="DateTimeOld" placeholder="Введите дату и время" id="datePicker" value="@Model.DateTimeOld.ToString("yyyy-MM-dd HH:mm:ss").Replace(' ','T')" />
+            <span asp-validation-for="DateTimeOld" class="text-danger"></span>
         </div>
     </div>
     <div class="form-group row">
@@ -33,16 +33,10 @@
         <div class="col-sm-10">
             <select id="categories" asp-for="Category">
                 <option selected>Choose</option>
-                @foreach(var category in Model.Categories){
+                @foreach (var category in Model.Categories)
+                {
                     <option class="@((int)category.Type)" value="@category.Name">@category.Name</option>
                 }
-                @*<option class="0" value="2">Иные доходы</option>
-                <option class="1" value="3">Продукты питания</option>
-                <option class="1" value="4">Транспорт</option>
-                <option class="1" value="5">Мобильная связь</option>
-                <option class="1" value="6">Интернет</option>
-                <option class="1" value="7">Развлечения</option>
-                <option class="1" value="8">Другое</option>*@
             </select>
             <span asp-validation-for="Category" class="text-danger"></span>
         </div>
@@ -70,28 +64,24 @@
 </form>
 
 @section Scripts{
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
-        <script>
-            window.onload = (event) => {
-                document.getElementById('datePicker').valueAsDate = new Date();
-            };
-        </script>
+  
 
-        <script>
-            $(function () {
-                $("#action-types").on("change", function () {
-                    var actionType = $('#action-types').find('option:selected').attr('value');
-                    $('#categories option').each(function () {
-                        var self = $(this);
-                        if (self.hasClass(actionType) || typeof (actionType) == "undefined") {
-                            self.show();
-                        } else {
-                            self.hide();
-                        }
-                    });
+    <script>
+        $(function () {
+            $("#action-types").on("change", function () {
+                var actionType = $('#action-types').find('option:selected').attr('value');
+                $('#categories option').each(function () {
+                    var self = $(this);
+                    if (self.hasClass(actionType) || typeof (actionType) == "undefined") {
+                        self.show();
+                    } else {
+                        self.hide();
+                    }
                 });
             });
-        </script>
+        });
+    </script>
 
 }

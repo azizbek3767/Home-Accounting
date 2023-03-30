@@ -1,0 +1,37 @@
+﻿@model CategoryCreateViewModel
+@{
+    ViewBag.Title = "Добавить категорию";
+
+
+    var ErrorMessage = ViewBag.ErrorMessage ?? "";
+}
+
+<a class="btn btn-primary" asp-controller="Home" asp-action="Index">Вернуться на главную</a>
+
+
+<h3 class="text-danger">@ErrorMessage</h3>
+
+<form asp-controller="category" asp-action="create" method="post" class="mt-3">
+    <div class="form-group row">
+        <label asp-for="Type" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select id="action-types" asp-for="Type" asp-items="Html.GetEnumSelectList<ActionTypes>()">
+                <option value=""></option>
+            </select>
+            <span asp-validation-for="Type" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <input asp-for="Name" placeholder="Введите название категории" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Добавить</button>
+        </div>
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
+</form>

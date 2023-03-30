@@ -1,43 +1,405 @@
-﻿@model HomeIndexViewModel
+﻿@using System.Globalization;
+@model HomeIndexViewModel
 @{
     ViewData["Title"] = "Домашняя бухгалтерия";
 }
+@section css {
 
+    <style>
+    </style>
+
+}
 <h2>Домашняя бухгалтерия</h2>
 
 <a asp-controller="Home" asp-action="Create" class="btn btn-primary">Добавить транзакцию</a>
+<a asp-controller="Category" asp-action="Index" class="btn btn-primary">Категории</a>
 
-@if(Model.Transactions.Count() != 0)
+<div class="searchBox3">
+    <input type="text" class="searchTextBox" id="searchBox3" placeholder="По всему" onfocus="this.placeholder = ''" onblur="this.placeholder = 'По всему'" />
+
+    <label id="NotExist" style="display:none"></label>
+</div>
+<button id="searchButton" onclick="searchAll()">Поиск</button>
+<div class="row">
+    <div class="col-md-3">
+        <h4>От</h4>
+        <input type="date" class="form-control" id="datefilterfrom" data-date-split-input="true">
+    </div>
+    <div class="col-md-3">
+        <h4>До</h4>
+        <input type="date" class="form-control" id="datefilterto" data-date-split-input="true">
+    </div>
+</div>
+<button id="searchdates" onclick="filterRows()">Поиск по дате</button>
+
+@if (Model.Transactions.Count() != 0)
 {
-<table class="table">
-    <thead>
-        <tr>
-            <th scope="col">#</th>
-            <th scope="col">Дата и время</th>
-            <th scope="col">Доход/расход</th>
-            <th scope="col">Категория</th>
-            <th scope="col">Сумма</th>
-            <th scope="col">Комментарий</th>
-            <th scope="col">Доступная сумма</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var transaction in Model.Transactions)
-        {
+    <table id="transactionsTable" class="subtable table table-bordered table-condensed">
+        <thead>
             <tr>
-                <th scope="row">@transaction.Id</th>
-                <td>@transaction.DateTime</td>
-                <td>@EnumExtensions.GetDisplayName(transaction.Type)</td>
-                <td>@EnumExtensions.GetDisplayName(transaction.Category)</td>
-                <td>@transaction.Amount</td>
-                <td>@transaction.Comment</td>
-                <td>@transaction.Sum</td>
+                <th onclick="sortTableId()" scope="col">#</th>
+                <th onclick="sortTable(1)" scope="col">Дата и время</th>
+                <th onclick="sortTable(2)" scope="col">Доход/расход</th>
+                <th onclick="sortTable(3)" scope="col">Категория</th>
+                <th onclick="sortTable22('subtable', 4)" scope="col">Сумма</th>
+                <th onclick="sortTable(5)" scope="col">Комментарий</th>
+                <th scope="col"></th>
             </tr>
-        }
-    </tbody>
+        </thead>
+        <tbody>
+            @foreach (var transaction in Model.Transactions)
+            {
+                <tr>
+                    <td scope="row">@transaction.Id</td>
+                    <td>@transaction.DateTime.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                    <td>@EnumExtensions.GetDisplayName(transaction.Type)</td>
+                    <td>@Model.Categories.Where(x => x.Id == Model.CategoryTransactions.Where(x => x.TransactionId == @transaction.Id).Select(y => y.CategoryId).FirstOrDefault()).Select(y => y.Name).FirstOrDefault()</td>
+                    <td class="@transaction.Type">@transaction.Amount</td>
+                    <td>@transaction.Comment</td>
+                    <td>
+                        <a asp-controller="home" asp-action="edit" asp-route-Id="@transaction.Id" class="btn btn-primary m-1">Edit</a>
+                        <form asp-controller="home" asp-action="delete" asp-route-Id="@transaction.Id" method="post">
+                            <button type="submit" class="btn btn-danger" 
+                            onclick="return confirm('Вы уверены, что хотите удалить эту транзакцию?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
     </table>
 }
 else
 {
     <h2>Пожалуйста, добавьте свою первую транзакцию</h2>
 }
+
+@*<h3 id="totalCount">@Model.Sum</h3>*@
+
+<h3 id="totalCount"></h3>
+
+
+@section Scripts{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+    <script>
+        function filterRows() {
+            var from = $('#datefilterfrom').val();
+            var to = $('#datefilterto').val();
+
+            if (!from && !to) { 
+                return;
+            }
+
+            from = from || '1970-01-01'; 
+            to = to || '2999-12-31';
+
+            var dateFrom = moment(from);
+            var dateTo = moment(to);
+
+            $('#transactionsTable tbody tr').each(function (i, tr) {
+                var val = $(tr).find("td:nth-child(2)").text().slice(0, 10);
+                console.log(val);
+                var dateVal = moment(val, "DD/MM/YYYY");
+                var visible = (dateVal.isBetween(dateFrom, dateTo, null, [])) ? "" : "none";
+                $(tr).css('display', visible);
+            });
+            getCurrentSumSet();
+        }
+
+    </script>
+
+
+
+    <script>
+        var currentTotal = getCurrentSum();
+        document.getElementById("totalCount").innerHTML = currentTotal;
+        var button = document.getElementById("searchButton");
+        button.addEventListener("click", getCurrentSumSet);
+        function getCurrentSumSet(){
+            currentTotal = getCurrentSum();
+            document.getElementById("totalCount").innerHTML = currentTotal;
+            console.log(currentTotal);
+        }
+
+        function getCurrentSum(){
+            var totalIncome = getTotalByClassName("Income");
+            var totalExpenses = getTotalByClassName("Expense");
+            var totalSum = totalIncome - totalExpenses;
+            return totalSum;
+        }
+        
+       
+        function getTotalByClassName(className){
+            var totalNumber=0;
+            var totals = document.getElementsByClassName(className);
+            for (let i = 0; i < totals.length; i++) {
+                const elemStyles = window.getComputedStyle(totals[i].parentElement)
+                if (totals[i].parentElement.style.display != "none") {
+                    totalNumber += parseInt(totals[i].innerHTML);
+                }
+            }
+            return totalNumber;
+        }
+       
+
+        
+    </script>
+    <script>
+        function sortTable(n) {
+          var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+          table = document.getElementById("transactionsTable");
+          switching = true;
+          dir = "asc";
+          while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+              shouldSwitch = false;
+              x = rows[i].getElementsByTagName("TD")[n];
+              y = rows[i + 1].getElementsByTagName("TD")[n];
+              if (dir == "asc") {
+                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                  shouldSwitch = true;
+                  break;
+                }
+              } else if (dir == "desc") {
+                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                  shouldSwitch = true;
+                  break;
+                }
+              }
+            }
+            if (shouldSwitch) {
+              rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+              switching = true;
+              switchcount ++;
+            } else {
+              if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+              }
+            }
+          }
+        }
+
+        function sortTableId() {
+            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            table = document.getElementById("transactionsTable");
+            switching = true;
+            dir = "asc";
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[0];
+                    y = rows[i + 1].getElementsByTagName("TD")[0];
+                    if (dir == "asc") {
+                        if (parseInt(x.innerHTML) > parseInt(y.innerHTML)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir == "desc") {
+                        if (parseInt(x.innerHTML) < parseInt(y.innerHTML)) {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                } else {
+                    if (switchcount == 0 && dir == "asc") {
+                        dir = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+
+        function sortTableNumberic() {
+            var table, rows, switching, i, x, y, shouldSwitch;
+            table = document.getElementById("transactionsTable");
+            switching = true;
+            while (switching) {
+                switching = false;
+                rows = table.rows;
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false
+                    x = rows[i].getElementsByTagName("TD")[4];
+                    y = rows[i + 1].getElementsByTagName("TD")[4];
+                    if (Number(x.innerHTML) > Number(y.innerHTML)) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                }
+            }
+        }
+    </script>
+   
+    <script>
+        function search() {
+            var input, filter, table, tr, td, i;
+            input = document.getElementById("searchTextBoxid"); 
+            filter = input.value.toUpperCase(); 
+            table = document.getElementById("transactionsTable");
+            tr = table.getElementsByTagName("tr");
+            var countvisble = 0;
+            
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[2]; 
+                if (td) {
+                    if (td.innerHTML.toUpperCase().indexOf(filter) >
+                        -1) {
+                        countvisble++;
+                        tr[i].style.display = "";
+                        document.getElementById("NotExist").style.display = "none";
+                    }
+                    else {
+                        tr[i].style.display = "none";
+                        document.getElementById("NotExist").style.display = "none";
+                    }
+                }
+            }
+            if (countvisble == 0) 
+            {
+                document.getElementById("NotExist").style.display = "Block";
+                document.getElementById("NotExist").innerHTML = "Does not exist!";
+            }
+        }
+    </script>
+    <script>
+        $(function () {
+            $("#action-types").on("change", function () {
+                var actionType = $('#action-types').find('option:selected').attr('value');
+                $('#categories option').each(function () {
+                    var self = $(this);
+                    if (self.hasClass(actionType) || typeof (actionType) == "undefined") {
+                        self.show();
+                    } else {
+                        self.hide();
+                    }
+                });
+            });
+        });
+        function searchAll(){
+            var mainElem = document.getElementById("searchBox3");
+            var keyword = mainElem.value;
+            keyword = keyword.toUpperCase();
+            var table_3 = document.getElementById("transactionsTable");
+            var all_tr = table_3.getElementsByTagName("tr");
+            for (var i = 0; i < all_tr.length; i++) {
+                var all_columns = all_tr[i].getElementsByTagName("td");
+                for (j = 0; j < all_columns.length; j++) {
+                    if (all_columns[j]) {
+                        var column_value = all_columns[j].textContent || all_columns[j].innerText;
+                        column_value = column_value.toUpperCase();
+                        if (column_value.indexOf(keyword) > -1) {
+                            all_tr[i].style.display = "";
+                            break;
+                        } else {
+                            all_tr[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+}
+
+<script>
+    function sortTable12(tableClass, n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+
+        table = document.getElementsByClassName(tableClass)[0];
+        switching = true;
+        dir = "asc";
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("TR");
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                var cmpX = isNaN(parseInt(x.innerHTML)) ? x.innerHTML.toLowerCase() : parseInt(x.innerHTML);
+                var cmpY = isNaN(parseInt(y.innerHTML)) ? y.innerHTML.toLowerCase() : parseInt(y.innerHTML);
+                cmpX = (cmpX == '-') ? 0 : cmpX;
+                cmpY = (cmpY == '-') ? 0 : cmpY;
+                if (dir == "asc") {
+                    if (cmpX > cmpY) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (cmpX < cmpY) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+    function sortTable22(tableClass, n) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+
+        table = document.getElementsByClassName(tableClass)[0];
+        switching = true;
+        dir = "asc";
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("TR");
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                var xContent = (isNaN(x.innerHTML))
+                    ? (x.innerHTML.toLowerCase() === '-')
+                        ? 0 : x.innerHTML.toLowerCase()
+                    : parseFloat(x.innerHTML);
+                var yContent = (isNaN(y.innerHTML))
+                    ? (y.innerHTML.toLowerCase() === '-')
+                        ? 0 : y.innerHTML.toLowerCase()
+                    : parseFloat(y.innerHTML);
+                if (dir == "asc") {
+                    if (xContent > yContent) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else if (dir == "desc") {
+                    if (xContent < yContent) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else {
+                if (switchcount == 0 && dir == "asc") {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+    }
+</script>

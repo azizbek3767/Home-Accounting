@@ -15,14 +15,15 @@ namespace PersonalAccounting.ViewModels
         public ActionTypes Type { get; set; }
 
         [Required]
-        public Categories Category { get; set; }
+        public string Category { get; set; }
 
         [Required]
         [DataType(DataType.Currency)]
         public double Amount { get; set; }
 
-        [Required]
         [DataType(DataType.Text)]
         public string Comment { get; set; }
+
+        public IEnumerable<Category>? Categories { get; set;}
     }
 }

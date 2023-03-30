@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PersonalAccounting.DataAccess;
+﻿using PersonalAccounting.DataAccess;
 
 namespace PersonalAccounting.Models.Repositories
 {

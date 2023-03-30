@@ -9,6 +9,8 @@ ConfigurationManager configuration = builder.Configuration;
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ITransactionRepository, SqlServerTransactionRepository>();
+builder.Services.AddScoped<ICategoryRepository, SqlServerCategoryRepository>();
+builder.Services.AddScoped<ICategoryTransactionRepository, SqlServerCategoryTransactionRepository>();
 builder.Services.AddDbContextPool<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("PersonalAccountingDb")));
 
 

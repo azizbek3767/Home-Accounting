@@ -1,0 +1,18 @@
+﻿SET IDENTITY_INSERT [dbo].[CategoryTransaction] ON
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (1, 1, 19)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (2, 8, 20)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (3, 1, 5)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (4, 1, 6)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (5, 8, 7)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (6, 3, 8)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (7, 6, 9)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (8, 2, 10)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (9, 4, 11)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (10, 3, 12)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (11, 9, 13)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (12, 1, 14)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (13, 1, 15)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (14, 7, 16)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (15, 1, 17)
+INSERT INTO [dbo].[CategoryTransaction] ([Id], [CategoryId], [TransactionId]) VALUES (16, 1, 18)
+SET IDENTITY_INSERT [dbo].[CategoryTransaction] OFF

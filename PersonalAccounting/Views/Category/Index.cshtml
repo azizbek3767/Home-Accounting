@@ -1,0 +1,45 @@
+﻿@model CategoryIndexViewModel
+@{
+    ViewData["Title"] = "Домашняя бухгалтерия";
+}
+
+<h2>Домашняя бухгалтерия</h2>
+
+<a asp-controller="Category" asp-action="Create" class="btn btn-primary">Добавить категорию</a>
+
+@if (Model.Categories.Count() != 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Тип категории</th>
+                <th scope="col">Название категории</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model.Categories)
+            {
+                <tr>
+                    <th scope="row">@category.Id</th>
+                    <td>@EnumExtensions.GetDisplayName(category.Type)</td>
+                    <td>@category.Name</td>
+                    <td>
+                        <a asp-controller="category" asp-action="edit" asp-route-Id="@category.Id" class="btn btn-primary m-1">Edit</a>
+                        <form asp-controller="category" asp-action="delete" asp-route-Id="@category.Id" method="post">
+                            <button type="submit" class="btn btn-danger" 
+                            onclick="return confirm('Вы уверены, что хотите удалить эту категорию?');">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <h2>Пожалуйста, добавьте свою первую категорию</h2>
+}
